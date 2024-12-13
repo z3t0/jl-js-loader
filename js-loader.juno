@@ -1,0 +1,38 @@
+;; This is a WIP implementation.
+;; Not yet functional.
+
+;; Description:
+;;   Allows loading javascript code found on npm.
+
+
+(create_namespace `js_mod { `serialze_with_image: false})
+(declare (namespace `js_mod))
+
+(defun inject_script_src (id src)
+      (-> (page_header) `append
+                 (html/script { `src: src `id: id})))
+
+(defun inject_importmap (id import_map)
+      (-> (page_header) `append
+                 (html/script {`type: "systemjs-importmap" `id: id}
+                              import_map)))
+
+
+
+;; TODO: Use a local vendored file
+(defun inject_system_js ()
+  (inject_script_src
+   "systemjs"
+   "https://cdn.jsdelivr.net/npm/systemjs/dist/system.js")
+
+  (inject_script_src
+   "systemjs-amd-extras"
+   "https://cdn.jsdelivr.net/npm/systemjs/dist/extras/amd.js")
+
+  (inject_script_src
+   "systemjs-extras-dynamic-import-maps"
+   "https://cdn.jsdelivr.net/npm/systemjs/dist/extras/dynamic-import-maps.js"))
+
+
+(defun systemjs_global ()
+  (get_outside_global "System"))
