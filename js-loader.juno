@@ -5,6 +5,7 @@
 ;;   Allows loading javascript code found on npm.
 
 
+;; TODO: update namespace to js loader
 (create_namespace `js_mod { `serialze_with_image: false})
 (declare (namespace `js_mod))
 
@@ -12,6 +13,8 @@
       (-> (page_header) `append
                  (html/script { `src: src `id: id})))
 
+
+;; TODO: What should we do if we find a duplicate import map?
 (defun inject_importmap (id import_map)
       (-> (page_header) `append
                  (html/script {`type: "systemjs-importmap" `id: id}
@@ -33,6 +36,38 @@
    "systemjs-extras-dynamic-import-maps"
    "https://cdn.jsdelivr.net/npm/systemjs/dist/extras/dynamic-import-maps.js"))
 
-
 (defun systemjs_global ()
   (get_outside_global "System"))
+
+(defun import_map (id path)
+   (+ '{
+       "imports": {
+                    "'
+                    id
+                    '": "'
+                    path
+                    '"
+           }
+       }'))
+
+
+
+;; To import a library, we inject an import map.
+;; see: https://github.com/systemjs/systemjs/blob/main/docs/import-maps.md
+
+;; example
+;; (import_lib "test" "/files/local_projects/tmp/test.js")
+;; /files/ mounts the root of the juno-lang project
+
+(defun import_lib (name path)
+   (progn
+      (inject_importmap
+         name
+         (import_map name path))
+
+      (-> (systemjs_global) `import name)))
+
+
+;; Public
+;; (inject_system_js)
+;; (import_lib name path)
